@@ -279,10 +279,12 @@ def create_url_rules(endpoint, list_route=None, item_route=None,
 def pass_record(f):
     """Decorator to retrieve persistent identifier and record."""
     @wraps(f)
-    def inner(self, pid_value, *args, **kwargs):
+    def inner(self, pid_value, *args, record=None, pid=None, **kwargs):
         try:
-            pid, record = request.view_args['pid_value'].data
-            return f(self, pid=pid, record=record, *args, **kwargs)
+            if pid is None or record is None:
+                pid, record = request.view_args['pid_value'].data
+            return f(self, pid=pid, record=record, pid_value=pid_value,
+                     *args, **kwargs)
         except SQLAlchemyError:
             raise PIDResolveRESTError(pid)
     return inner
